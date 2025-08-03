@@ -36,10 +36,29 @@ def main():
     gs = chessEngine.GameState()  # Create a new game state
     loadImages()  # Load images of chess pieces
     running = True  # Game loop control variable
+    sqSelected = ()  # Keep track of last click of the user
+    playerClicks = []  # List to keep track of player clicks (two tuples)
     while running:
         for e in p.event.get():
             if e.type == p.QUIT:
                 running = False
+            elif e.type == p.MOUSEBUTTONDOWN:
+                location = p.mouse.get_pos() # Get the mouse click position
+                column = location[0] // SQ_SIZE  
+                row = location[1] // SQ_SIZE  
+                if sqSelected == (row, column): # If the same square is clicked again
+                    sqSelected = ()
+                    playerClicks = []
+                else:
+                    sqSelected = (row, column)  
+                    playerClicks.append(sqSelected)
+                if len(playerClicks) == 2:  # If two squares are selected
+                   move = chessEngine.Move(playerClicks[0], playerClicks[1], gs.board)  # Create a move object
+                   print(move.getChessNotation()) 
+                   gs.makeMove(move)  
+                   sqSelected = ()
+                   playerClicks = []  
+                
         drawGameState(screen, gs)  # Draw the current game state
         clock.tick(MAX_FPS)  # Control the frame rate
         p.display.flip()  # Update the display
